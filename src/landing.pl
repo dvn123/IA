@@ -5,10 +5,10 @@ p1(100). % penalizacao por tempo superior ou inferior a limites
 p2(100). % penalizacao por aterrar com subprosicao na mesma pista
 
 faval_1plane([Time-_Runway], N, V) :-
-        flight(N,Tmin,Tpref,Tmax,Cbefore,Cafter,D),
+        flight(N,Tmin,Tpref,Tmax,Cbefore,Cafter,_),
         p1(P1),
-        (Time =< Tmax+D -> C1 is 0; C1 is P1*(Tmax+D-Time)),
-        (Time >= Tmin -> C2 is C1; C2 is P1*(Tmax+D-Time)+C1),
+        (Time =< Tmax -> C1 is 0; C1 is P1*(Tmax-Time)),
+        (Time >= Tmin -> C2 is C1; C2 is P1*(Tmax-Time)+C1),
         (C2 > 0 -> V is C2; (Time < Tpref -> V is Cbefore*(Tpref-Time); V is Cafter*(Time-Tpref))).
 
 faval_overlap([T1-R],N1,[T2-R],N2,Penal) :- % para a mesma pista
@@ -53,6 +53,14 @@ build_flights(Lout) :-
         findall([Tpref-Runway],(flight(Id,Tmin,Tpref,Tmax,Cbefore,Cafter,D),
                validate(flight(Id,Tmin,Tpref,Tmax,Cbefore,Cafter,D)),random(1,NR1,Runway)),Lout).
 
+build_flights_random(Lout) :-
+        numRunways(NumRunways),
+        NR1 is NumRunways+1,
+        findall([T-Runway],(flight(Id,Tmin,Tpref,Tmax,Cbefore,Cafter,D),
+               validate(flight(Id,Tmin,Tpref,Tmax,Cbefore,Cafter,D)),
+               TM1 is Tmax + 1,
+               random(Tmin,TM1,T),random(1,NR1,Runway)),Lout).
+
 validate(flight(Id,Tmin,Tpref,Tmax,Cbefore,Cafter,D)) :-
         (Tmin>Tmax -> write('Flight '), write(Id), write(' not valid'), break;true),
         (Tpref>Tmax -> write('Flight '), write(Id), write(' not valid'), break;true),
@@ -61,7 +69,7 @@ validate(flight(Id,Tmin,Tpref,Tmax,Cbefore,Cafter,D)) :-
         (Cafter<0 -> write('Flight '), write(Id), write(' not valid'), break;true),
         (Cbefore<0 -> write('Flight '), write(Id), write(' not valid'), break;true).
 
-showFlight(flight(Id,_,_,_,_,_,_),Cost,[Hs-Hm]) :- 
+showFlight(Id,Cost,[Hs-Hm]) :- 
                                                                                               write('Flight No '), write(Id),
                                                                                               write(' -> landing time: '),
                                                                                               write(Hs),
@@ -71,7 +79,7 @@ showFlight(flight(Id,_,_,_,_,_,_),Cost,[Hs-Hm]) :-
                                                                                               write(Cost),
                                                                                               write('.'),nl.
 showFlights([],[],_).
-showFlights([H|T],[Hc|Tc],N) :- showFlight(flight(N,_,_,_,_,_,_),Hc,H), N1 is N+1, showFlights(T,Tc,N1).
+showFlights([H|T],[Hc|Tc],N) :- showFlight(N,Hc,H), N1 is N+1, showFlights(T,Tc,N1).
 
 landing :- write('Landing System. Input name of file:'),nl,read(FileName),[FileName],
         build_flights(Initial),
@@ -79,8 +87,6 @@ landing :- write('Landing System. Input name of file:'),nl,read(FileName),[FileN
         faval(Initial,Value,Costs),
         showFlights(Initial,Costs,1),nl,
         write(Value).
-
-
 
 
         
