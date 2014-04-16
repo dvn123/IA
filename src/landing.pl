@@ -22,12 +22,30 @@ faval_overlap([T1-R],N1,[T2-R],N2,Penal) :- % para a mesma pista
         !.
 faval_overlap([_T1-_R1],_N1,[_T2-_R2],_N2,0). % em pistas separadas o custo e 0
 
-faval(List,Value):-
-        findall(Penal,(nth1(N1,List,F1),nth1(N2,List,F2),N1 < N2, faval_overlap(F1,N1,F2,N2,Penal)),Lpenal),
-        sumlist(Lpenal,Vtmp),
+add_cost(In,Cost,N,Out) :- add_cost(In,Cost,N,1,Out).
+add_cost([],_,_,_,[]).
+add_cost([H|T],Cost,N,N,[Ho|T]) :-
+        Ho is H + Cost,!.
+add_cost([H|T],Cost,ElemNum,N,[H|To]) :- N1 is N+1, add_cost(T,Cost,ElemNum,N1,To).
+
+start_cost_list(0,[]) :- !.
+start_cost_list(N,[H|T]) :- H is 0, N1 is N - 1, start_cost_list(N1,T).
+
+accumulate_costs(Costs,Nflights,Out) :- start_cost_list(Nflights,In), accumulate_costs_aux(Costs,In,Out).
+accumulate_costs_aux([],In,In).
+accumulate_costs_aux([N1-N2-Penal|T],In,Out) :- add_cost(In,Penal,N1,O1), add_cost(O1,Penal,N2,O2), accumulate_costs_aux(T,O2,Out).
+
+sum_2lists([],[],[]).
+sum_2lists([H1|T1],[H2|T2],[H3|T3]) :- H3 is H1 + H2, sum_2lists(T1,T2,T3).
+
+faval(List,Value) :- faval(List,Value,_).
+faval(List,Value,CostPerFlight):-
+        findall(N1-N2-Penal,(nth1(N1,List,F1),nth1(N2,List,F2),N1 < N2, faval_overlap(F1,N1,F2,N2,Penal)),Lpenal),
+        length(List,Length),
+        accumulate_costs(Lpenal,Length,Ltmp),
         findall(Cost,(nth1(N,List,F),faval_1plane(F,N,Cost)),Lcost),
-        sumlist(Lcost,Vtmp2),
-        Value is Vtmp + Vtmp2.
+        sum_2lists(Ltmp,Lcost,CostPerFlight),
+        sumlist(CostPerFlight,Value).
 
 build_flights(Lout) :-
         numRunways(NumRunways),
@@ -43,20 +61,26 @@ validate(flight(Id,Tmin,Tpref,Tmax,Cbefore,Cafter,D)) :-
         (Cafter<0 -> write('Flight '), write(Id), write(' not valid'), break;true),
         (Cbefore<0 -> write('Flight '), write(Id), write(' not valid'), break;true).
 
-showFlights(flight(Id,_,_,_,_,_,_),[Hs-Hm]) :- 
+showFlight(flight(Id,_,_,_,_,_,_),Cost,[Hs-Hm]) :- 
                                                                                               write('Flight No '), write(Id),
                                                                                               write(' -> landing time: '),
                                                                                               write(Hs),
                                                                                               write('; runway '),
                                                                                               write(Hm),
                                                                                               write('; cost '),
-                                                                                              faval_1plane([Hs-Hm],Id,Hc),
-                                                                                              write(Hc),
+                                                                                              write(Cost),
                                                                                               write('.'),nl.
+showFlights([],[],_).
+showFlights([H|T],[Hc|Tc],N) :- showFlight(flight(N,_,_,_,_,_,_),Hc,H), N1 is N+1, showFlights(T,Tc,N1).
 
 landing :- write('Landing System. Input name of file:'),nl,read(FileName),[FileName],
         build_flights(Initial),
         write(Initial),nl,
-        faval(Initial,Value),
+        faval(Initial,Value,Costs),
+        showFlights(Initial,Costs,1),nl,
         write(Value).
+
+
+
+
         
