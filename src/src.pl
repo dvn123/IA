@@ -120,7 +120,8 @@ neighbour(S,Sv, Neighbours, _) :-
 neighbour(_S,Sv, Neighbours, 20) :-
         length(Neighbours, Length),
         Length1 is Length - 1,
-        nth0(Length1,Neighbours, Sv).
+        random(0,Length1,X),
+        nth0(X,Neighbours, Sv).
 
 neighbour(S,Sv, Neighbours, N):-
         N1 is N +1,
