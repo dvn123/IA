@@ -117,8 +117,10 @@ neighbour(S,Sv, Neighbours, _) :-
         ; Time is OldTime+Inc, Time > 0, Time \= OldTime, select([OldTime-OldRunway], S, [Time-OldRunway], Sv)),
         \+(member(Sv,Neighbours)).
 
-neighbour(_S,Sv, _Neighbours, 20):-
-        build_flights_random(Sv).
+neighbour(_S,Sv, Neighbours, 20) :-
+        length(Neighbours, Length),
+        Length1 is Length - 1,
+        nth0(Length1,Neighbours, Sv).
 
 neighbour(S,Sv, Neighbours, N):-
         N1 is N +1,
