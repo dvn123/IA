@@ -4,7 +4,6 @@
 
 p1(700). % penalizacao por tempo superior ou inferior a limites
 p2(700). % penalizacao por aterrar com subprosicao na mesma pista
-factor(1000). % valor maximo para obter funcao adaptacao
 
 faval_1plane([Time-_Runway], N, V) :-
         flight(N,Tmin,Tpref,Tmax,Cbefore,Cafter,_),
@@ -38,7 +37,8 @@ accumulate_costs_aux([],In,In).
 accumulate_costs_aux([N1-N2-Penal|T],In,Out) :- add_cost(In,Penal,N1,O1), add_cost(O1,Penal,N2,O2), accumulate_costs_aux(T,O2,Out).
 
 join_eval([],[],[]).
-join_eval([H1|T1],[H2|T2],[H3|T3]) :- factor(V), H3 is V - (H1 + H2), join_eval(T1,T2,T3).
+join_eval([H1|T1],[H2|T2],[H3|T3]) :- factor(V), !, H3 is V - (H1 + H2), join_eval(T1,T2,T3).
+join_eval([H1|T1],[H2|T2],[H3|T3]) :- factor(0), H3 is H1 + H2, join_eval(T1,T2,T3).
 
 faval(List,Value) :- faval(List,Value,_).
 faval(List,Value,CostPerFlight):-
@@ -84,10 +84,3 @@ showFlight(Id,Cost,[Hs-Hm]) :-
                                                                                               write('.'),nl.
 showFlights([],[],_).
 showFlights([H|T],[Hc|Tc],N) :- showFlight(N,Hc,H), N1 is N+1, showFlights(T,Tc,N1).
-
-%%landing :- write('Landing System. Input name of file:'),nl,read(FileName),[FileName],
-%%        build_flights(Initial),
-%%        write(Initial),nl,
-%%        faval(Initial,Value,Costs),
-%%        showFlights(Initial,Costs,1),nl,
-%%        write(Value).

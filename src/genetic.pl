@@ -6,6 +6,8 @@ landing :- ['landing.pl'],nl,nl,write('Landing System. Input name of file:'),nl,
         faval(Best,_,Costs),
         showFlights(Best,Costs,1),nl.
 
+factor(1000). % valor maximo para obter funcao adaptacao
+
 %% -------------------
 genetic(Nelems,ProbCross,Ngens,CostBest,Best) :- build_pop(Nelems,Lout,C1), geneticIteration(Lout,C1,ProbCross,1,Ngens,Costs,BestSet),
               max_member(CostBest,Costs),
