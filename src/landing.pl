@@ -37,8 +37,8 @@ accumulate_costs_aux([],In,In).
 accumulate_costs_aux([N1-N2-Penal|T],In,Out) :- add_cost(In,Penal,N1,O1), add_cost(O1,Penal,N2,O2), accumulate_costs_aux(T,O2,Out).
 
 join_eval([],[],[]).
-join_eval([H1|T1],[H2|T2],[H3|T3]) :- factor(V), !, H3 is V - (H1 + H2), join_eval(T1,T2,T3).
-join_eval([H1|T1],[H2|T2],[H3|T3]) :- factor(0), H3 is H1 + H2, join_eval(T1,T2,T3).
+join_eval([H1|T1],[H2|T2],[H3|T3]) :- factor(0), !, H3 is H1 + H2, join_eval(T1,T2,T3).
+join_eval([H1|T1],[H2|T2],[H3|T3]) :- factor(V), H3 is V - (H1 + H2), join_eval(T1,T2,T3).
 
 faval(List,Value) :- faval(List,Value,_).
 faval(List,Value,CostPerFlight):-
@@ -79,7 +79,7 @@ showFlight(Id,Cost,[Hs-Hm]) :-
                                                                                               write(Hm),
                                                                                               write('; cost '),
                                                                                               factor(F),
-                                                                                              C1 is F - Cost,
+                                                                                              (F =:= 0 -> C1 is Cost;C1 is F - Cost),
                                                                                               write(C1),
                                                                                               write('.'),nl.
 showFlights([],[],_).

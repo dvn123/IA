@@ -1,3 +1,6 @@
+factor(10000). % valor maximo para obter funcao adaptacao
+
+
 landing :- ['landing.pl'],nl,nl,write('Landing System. Input name of file:'),nl,read(FileName),[FileName],
         write('Size of population'), nl, read(Size), nl,
         write('Number of generations'),nl, read(NumGen), nl,
@@ -6,7 +9,6 @@ landing :- ['landing.pl'],nl,nl,write('Landing System. Input name of file:'),nl,
         faval(Best,_,Costs),
         showFlights(Best,Costs,1),nl.
 
-factor(1000). % valor maximo para obter funcao adaptacao
 
 %% -------------------
 genetic(Nelems,ProbCross,Ngens,CostBest,Best) :- build_pop(Nelems,Lout,C1), geneticIteration(Lout,C1,ProbCross,1,Ngens,Costs,BestSet),
