@@ -1,4 +1,5 @@
 temperatureDecrease(1).
+niterations(20000).
 factor(0). % valor maximo para obter funcao adaptacao
 
 neighbour(S,Sv, Neighbours, _) :-
@@ -15,18 +16,23 @@ neighbour(S,Sv, Neighbours, _) :-
         ; Time is OldTime+Inc, Time > 0, Time \= OldTime, select([OldTime-OldRunway], S, [Time-OldRunway], Sv)),
         \+(member(Sv,Neighbours)).
 
-neighbour(_S,Sv, Neighbours, 20) :-
-        length(Neighbours, Length),
-        Length1 is Length - 1,
-        random(0,Length1,X),
-        nth0(X,Neighbours, Sv).
+%neighbour(_S,Sv, Neighbours, 10) :-
+%        length(Neighbours, Length),
+%        Length1 is Length - 1,
+%        random(0,Length1,X),
+%        nth0(X,Neighbours, Sv).
+
+neighbour(_S,Sv, _Neighbours, 10) :-
+        %write('REACHED NEIGHBOUR LIMIT'), nl,
+        build_flights_random(Sv).
 
 neighbour(S,Sv, Neighbours, N):-
         N1 is N +1,
         neighbour(S,Sv, Neighbours, N1).        
 
 probability(E, Enew, K, P) :-
-        (Enew < E -> P is 1; P is K/10000).
+        niterations(X),
+        (Enew < E -> P is 1; P is K/X).
 
 simulated_annealing(_, Lf, _, Best, 0, _) :-
         Lf = Best.
@@ -40,18 +46,19 @@ simulated_annealing(L, Lf, Temperature, Best, BestScore, Visited) :-
         %write('Current State '), write(L), nl, write('Visited '), write(Visited), nl,
         neighbour(L,L1, Visited, 0),
         faval(L, Score),
-        %write('Score '), write(Score), nl, write('Best Score '), write(BestScore), nl,
-        probability(BestScore,Score,Temperature, P),
-        %write('Probability '), write(P), nl,
-        %write('Temperature '), write(Temperature), nl,
+        faval(L1, Score2),
+        %write('Score '), write(Score), nl, write('Neighbour Score '), write(Score2), nl, write('Best Score '), write(BestScore), nl,
+        probability(Score,Score2,Temperature, P),
         random(X),
+        %write('Probability '), write(P), nl, write('Temperature '), write(Temperature), nl, write('Random '), write(X), nl,
         temperatureDecrease(T),
         NewTemp is Temperature-T,
-        (P > X -> (Score < BestScore -> simulated_annealing(L1, Lf, NewTemp, L1, Score, [L1| Visited]); simulated_annealing(L1, Lf, NewTemp, Best, BestScore, [L1| Visited]))
+        (P > X -> (Score2 < BestScore -> simulated_annealing(L1, Lf, NewTemp, L1, Score2, [L1| Visited]); simulated_annealing(L1, Lf, NewTemp, Best, BestScore, [L1| Visited]))
                   ; simulated_annealing(L, Lf, NewTemp, Best, BestScore, [L1| Visited])).
 
 simulated_annealing(L, Lf) :-
-        simulated_annealing(L, Lf, 10000, L, 9999, []).
+        niterations(X),
+        simulated_annealing(L, Lf, X, L, 9999, []).
 
 
 landing :- ['landing.pl'],nl,nl,write('Landing System. Input name of file:'),nl,read(FileName),[FileName],
