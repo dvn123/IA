@@ -1,0 +1,138 @@
+niterations(1000).
+tabu_tenure(50).
+max_tabu_list_size(10).
+factor(0). % valor maximo para obter funcao adaptacao
+
+neighbour(S,Sv, Neighbours, N) :-
+        N < 10,
+        numRunways(NR),
+        length(S, Length),
+        random(X), %inc is positive or negative
+        (X>0.5 -> Inc is 1; Inc is -1),
+        random(0, Length, X1), %element to change
+        Ele is round(X1),
+        %write(element), write(Ele), nl,
+        nth0(Ele,S,[OldTime-OldRunway]),
+        random(X2), %change runway or time
+        (X2>0.5 -> Runway is (1 + mod(OldRunway + Inc, NR)), Runway \= OldRunway, select([OldTime-OldRunway], S, [OldTime-Runway], Sv)
+        ; Time is OldTime+Inc, Time > 0, Time \= OldTime, select([OldTime-OldRunway], S, [Time-OldRunway], Sv)),
+        \+(member(Sv,Neighbours)).
+
+neighbour(S,Sv, Neighbours, N):-
+        N < 10,
+        N1 is N +1,
+        neighbour(S,Sv, Neighbours, N1).        
+
+isTabu(L, TabuList) :-
+        member(L, TabuList).
+
+tabu_search_aux(L, Lf, TabuList, Visited) :-
+        tabu_search_aux(L, [], Lf, TabuList, Visited).
+
+tabu_search_aux(L, Aux, Lf, TabuList, Visited) :-
+        neighbour(L,L1, Visited, 0),
+        (isTabu(L1, TabuList) -> tabu_search_aux(L, Aux, Lf, TabuList, [L1, Visited]); tabu_search_aux(L, [L1|Aux], Lf, TabuList, [L1, Visited])).
+
+tabu_search_aux(_, Aux, Lf, _, _) :-
+        Lf = Aux.
+
+choose_best([], Aux, Aux, _BestScore).
+
+choose_best([X|L], Aux, Best, BestScore) :-
+        faval(X, Score),
+        %write('Score - '), write(Score), nl,
+        %write('BestScore - '), write(BestScore), nl,
+        (Score < BestScore -> choose_best(L, X, Best, Score); choose_best(L, Aux, Best, BestScore)).
+
+choose_best([X|L], Best) :-
+        choose_best([X|L], X, Best, 9999).
+
+remove_expired([],Aux, NewTabuList) :-
+        NewTabuList = Aux.
+        
+remove_expired([L-E], Aux, NewTabuList) :-
+        tabu_tenure(Y),
+        (E < Y -> remove_expired([], [[L-E]|Aux], NewTabuList); remove_expired([], Aux, NewTabuList)).
+
+remove_expired([[L-E]|TabuList], Aux, NewTabuList) :-
+        tabu_tenure(Y),
+        (E < Y -> remove_expired(TabuList, [[L-E]|Aux], NewTabuList); remove_expired(TabuList, Aux, NewTabuList)).
+
+remove_expired(X, X) :-
+        length(X, Y),
+        Y = 0.
+   
+remove_expired(TabuList, NewTabuList) :-
+        length(TabuList, X),
+        \+(X = 0),
+        remove_expired(TabuList, [], NewTabuList).    
+
+update([], []).
+update([L3-T], [L3-T1]) :- 
+        T1 is T + 1.
+
+update([[L3-T]|L], [[L3-T1]|L2]) :- 
+        T1 is T + 1,
+        update(L, L2).
+
+update_tabu_list([], L1, L) :-
+        L1 = [[L-0]].
+
+update_tabu_list(TabuList, NewTabuList, L) :-
+        update(TabuList, L3),
+        remove_expired(L3, L2),
+        %write('L2 - '), write(L2), nl,
+        length(L2, Len),
+        Len > 1, !,
+        %write(Len), nl, write(L2),
+        nth1(Len, L2, Last),
+        %write(L2), nl, write([Last]), nl,
+        append(L1, [Last], L2),
+        %write('L1 - '), write(L1), nl, write('Last - '), write(Last), nl,
+        max_tabu_list_size(Y2),
+        length([L1|Last], N),
+        %write([L-0]), nl, write(L2), nl,
+        (N > Y2 -> append([[L-0]], L1, NewTabuList); append([[L-0]], L2, NewTabuList)).
+
+update_tabu_list(TabuList, NewTabuList, L) :-
+        %write('2'), nl, 
+        !, update(TabuList, L3), !,
+        remove_expired(L3, L1), !,
+        %write('List - '), write([[L]-0]), nl, write([L1]), nl,
+        append([[L-0]], L1, NewTabuList).
+
+        
+%In its simplest form, a tabu list is a short-term set of the solutions that have been visited in the recent past (less than n iterations ago, where n is the number of previous solutions to be stored - is also called the tabu tenure).
+%More commonly, a tabu list consists of solutions that have changed by the process of moving from one solution to another. 
+%It is convenient, for ease of description, to understand a solution to be coded and represented by such attributes.
+
+tabu_search(_, Lf, _, Best, 0, _) :-
+        Lf = Best.
+
+tabu_search(_, Lf, 0, Best, _BestScore, _) :-
+        %write('BestScore - '), write(BestScore),
+        Lf = Best.
+
+tabu_search(L, Lf, Iterations, Best, BestScore, TabuList) :-
+        write('Iterations - '), write(Iterations), nl, write('Current - '), write(L), nl, write('TabuList - '), write(TabuList), nl, write('BestScore - '), write(BestScore), nl,
+        tabu_search_aux(L, Lout, TabuList, []), !,
+        %write('Lout - '), write(Lout), nl,
+        write('2 - '), nl,
+        choose_best(Lout, CandidateBest), !,
+        write('3 - '), nl,
+        faval(CandidateBest, CandidateBestScore), !,
+        write('4 - '), write('CandidateBestScore - '), write(CandidateBestScore), nl,
+        Iterations1 is Iterations - 1, !,
+        write('5 - '), nl, nl,
+        %trace, notrace,
+        (CandidateBestScore < BestScore ->  update_tabu_list(TabuList, NewTabuList, CandidateBest), !, tabu_search(CandidateBest, Lf, Iterations1, CandidateBest, CandidateBestScore, NewTabuList); tabu_search(Best, Lf, Iterations1, Best, BestScore, TabuList)).
+
+tabu_search(L, Lf) :-
+        niterations(X),
+        tabu_search(L, Lf, X, L, 9999, []).
+
+landing :- ['landing.pl'],nl,nl,write('Landing System. Input name of file:'),nl,read(FileName),[FileName],
+        build_flights(Lin),
+        tabu_search(Lin,Lout),
+        faval(Lout,_,Costs),
+        showFlights(Lout,Costs,1),nl.
