@@ -84,5 +84,6 @@ showFlight(Id,Cost,[Hs-Hm]) :-
                                                                                               write('; duration '),
                                                                                               flight(Id,_,_,_,_,_,D), write(D) 
                                                                                               ,nl.
+
 showFlights([],[],_).
 showFlights([H|T],[Hc|Tc],N) :- showFlight(N,Hc,H), N1 is N+1, showFlights(T,Tc,N1).
