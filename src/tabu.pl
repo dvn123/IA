@@ -1,10 +1,9 @@
-niterations(1000).
-tabu_tenure(100).
-max_tabu_list_size(100).
+niterations(20000).
+tabu_tenure(1000).
+max_tabu_list_size(1000).
 factor(0). % valor maximo para obter funcao adaptacao
 
-neighbour(S,Sv, Neighbours, N) :-
-        N < 10,
+neighbour(S,Sv, Neighbours) :-
         numRunways(NR),
         length(S, Length),
         random(X), %inc is positive or negative
@@ -18,11 +17,6 @@ neighbour(S,Sv, Neighbours, N) :-
         ; Time is OldTime+Inc, Time > 0, Time \= OldTime, select([OldTime-OldRunway], S, [Time-OldRunway], Sv)),
         \+(member(Sv,Neighbours)).
 
-neighbour(S,Sv, Neighbours, N):-
-        N < 10,
-        N1 is N +1,
-        neighbour(S,Sv, Neighbours, N1).
-
 isTabuAux(L, [[L-_]]).
 
 isTabuAux(L, [[L-_]|_]).    
@@ -32,16 +26,6 @@ isTabuAux(L, [_|L1]) :-
  
 isTabu(L, TabuList) :-
         isTabuAux(L, TabuList).
-
-tabu_search_aux(L, Lf, TabuList, Visited) :-
-        tabu_search_aux(L, [], Lf, TabuList, Visited).
-
-tabu_search_aux(L, Aux, Lf, TabuList, Visited) :-
-        neighbour(L,L1, Visited, 0),
-        (isTabu(L1, TabuList) -> tabu_search_aux(L, Aux, Lf, TabuList, [L1, Visited]); tabu_search_aux(L, [L1|Aux], Lf, TabuList, [L1, Visited])).
-
-tabu_search_aux(_, Aux, Lf, _, _) :-
-        Lf = Aux.
 
 choose_best([], Aux, Aux, _BestScore).
 
@@ -121,11 +105,13 @@ tabu_search(_, Lf, 0, Best, _BestScore, _) :-
 
 tabu_search(L, Lf, Iterations, Best, BestScore, TabuList) :-
         %write('Iterations - '), write(Iterations), nl, write('Current - '), write(L), nl, write('TabuList - '), write(TabuList), nl, write('BestScore - '), write(BestScore), nl,
-        tabu_search_aux(L, Lout, TabuList, []), !,
+        %tabu_search_aux(L, Lout, TabuList, []), !,
+        findall(X, (neighbour(L, X, []), \+(isTabu(X, TabuList))), Z), !,
+        %write(Z), nl,
         %write('Lout - '), write(Lout), nl,
         %write('2 - '), nl,
         %write(Lout), nl, !,
-        (Lout = [] -> build_flights_random(CandidateBest); choose_best(Lout, CandidateBest)),!,
+        (Z = [] -> build_flights_random(CandidateBest); choose_best(Z, CandidateBest)),!,
         %write('3 - '), nl,
         faval(CandidateBest, CandidateBestScore), !,
         %write('4 - '), write('CandidateBestScore - '), write(CandidateBestScore), nl,

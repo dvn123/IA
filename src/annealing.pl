@@ -22,13 +22,13 @@ neighbour(S,Sv, Neighbours, _) :-
 %        random(0,Length1,X),
 %        nth0(X,Neighbours, Sv).
 
-neighbour(_S,Sv, _Neighbours, 10) :-
-        %write('REACHED NEIGHBOUR LIMIT'), nl,
-        build_flights_random(Sv).
+%neighbour(_S,Sv, _Neighbours, 10) :-
+%        %write('REACHED NEIGHBOUR LIMIT'), nl,
+%        build_flights_random(Sv).
 
-neighbour(S,Sv, Neighbours, N):-
-        N1 is N +1,
-        neighbour(S,Sv, Neighbours, N1).        
+%neighbour(S,Sv, Neighbours, N):-
+%        N1 is N +1,
+%        neighbour(S,Sv, Neighbours, N1).        
 
 probability(E, Enew, K, P) :-
         niterations(X),
@@ -45,7 +45,7 @@ simulated_annealing(_, Lf, Temperature, Best, BestScore, _) :-
 simulated_annealing(L, Lf, Temperature, Best, BestScore, Visited) :-
         %write('Current State '), write(L), nl, 
         %write('Visited '), write(Visited), nl,
-        neighbour(L,L1, Visited, 0),
+        neighbour(L,L1, Visited, 0), !,
         faval(L, Score),
         faval(L1, Score2),
         %write('Score '), write(Score), nl, write('Neighbour Score '), write(Score2), nl, write('Best Score '), write(BestScore), nl,
