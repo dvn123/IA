@@ -43,7 +43,8 @@ simulated_annealing(_, Lf, Temperature, Best, BestScore, _) :-
         Lf = Best.
 
 simulated_annealing(L, Lf, Temperature, Best, BestScore, Visited) :-
-        %write('Current State '), write(L), nl, write('Visited '), write(Visited), nl,
+        %write('Current State '), write(L), nl, 
+        %write('Visited '), write(Visited), nl,
         neighbour(L,L1, Visited, 0),
         faval(L, Score),
         faval(L1, Score2),
@@ -63,6 +64,10 @@ simulated_annealing(L, Lf) :-
 
 landing :- ['landing.pl'],nl,nl,write('Landing System. Input name of file:'),nl,read(FileName),[FileName],
         build_flights(Lin),
+        statistics(runtime, [T0| _]), 
         simulated_annealing(Lin,Lout),
+        statistics(runtime, [T1|_]),
+        T is T1-T0,
+        format('Time -  ~3d seconds.~n', [T]),
         faval(Lout,_,Costs),
         showFlights(Lout,Costs,1),nl.
