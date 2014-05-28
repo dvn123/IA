@@ -16,19 +16,13 @@ neighbour(S,Sv, Neighbours, _) :-
         ; Time is OldTime+Inc, Time > 0, Time \= OldTime, select([OldTime-OldRunway], S, [Time-OldRunway], Sv)),
         \+(member(Sv,Neighbours)).
 
-%neighbour(_S,Sv, Neighbours, 10) :-
-%        length(Neighbours, Length),
-%        Length1 is Length - 1,
-%        random(0,Length1,X),
-%        nth0(X,Neighbours, Sv).
+neighbour(_S,Sv, _Neighbours, 10) :-
+        %write('REACHED NEIGHBOUR LIMIT'), nl,
+        build_flights_random(Sv).
 
-%neighbour(_S,Sv, _Neighbours, 10) :-
-%        %write('REACHED NEIGHBOUR LIMIT'), nl,
-%        build_flights_random(Sv).
-
-%neighbour(S,Sv, Neighbours, N):-
-%        N1 is N +1,
-%        neighbour(S,Sv, Neighbours, N1).        
+neighbour(S,Sv, Neighbours, N):-
+        N1 is N +1,
+        neighbour(S,Sv, Neighbours, N1).        
 
 probability(E, Enew, K, P) :-
         niterations(X),
@@ -45,7 +39,7 @@ simulated_annealing(_, Lf, Temperature, Best, BestScore, _) :-
 simulated_annealing(L, Lf, Temperature, Best, BestScore, Visited) :-
         %write('Current State '), write(L), nl, 
         %write('Visited '), write(Visited), nl,
-        neighbour(L,L1, Visited, 0), !,
+        neighbour(L,L1, Visited, 0),
         faval(L, Score),
         faval(L1, Score2),
         %write('Score '), write(Score), nl, write('Neighbour Score '), write(Score2), nl, write('Best Score '), write(BestScore), nl,
@@ -64,9 +58,9 @@ simulated_annealing(L, Lf) :-
 
 landing :- ['landing.pl'],nl,nl,write('Landing System. Input name of file:'),nl,read(FileName),[FileName],
         build_flights(Lin),
-        statistics(runtime, [T0| _]), 
+        statistics(total_runtime, [T0| _]), 
         simulated_annealing(Lin,Lout),
-        statistics(runtime, [T1|_]),
+        statistics(total_runtime, [T1|_]),
         T is T1-T0,
         format('Time -  ~3d seconds.~n', [T]),
         faval(Lout,_,Costs),

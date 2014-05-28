@@ -126,9 +126,9 @@ tabu_search(L, Lf) :-
 
 landing :- ['landing.pl'],nl,nl,write('Landing System. Input name of file:'),nl,read(FileName),[FileName],
         build_flights(Lin),
-        statistics(runtime, [T0|_]),   
+        statistics(total_runtime, [T0|_]),   
         tabu_search(Lin,Lout),
-        statistics(runtime, [T1|_]),
+        statistics(total_runtime, [T1|_]),
         T is T1-T0,
         format('Time -  ~3d seconds.~n', [T]),
         faval(Lout, X),
