@@ -6,8 +6,10 @@ landing :- ['landing.pl'],nl,nl,write('Landing System. Input name of file:'),nl,
         write('Number of generations'),nl, read(NumGen), nl,
         write('Crossover probability'),nl, read(CO), nl,
         genetic(Size,CO,NumGen,_,Best),
-        faval(Best,_,Costs),tell('result.txt'),
-        showFlights(Best,Costs,1),told,showFlights(Best,Costs,1),nl.
+        faval(Best,Total,Costs),tell('result.txt'),
+        showFlights(Best,Costs,1),told,showFlights(Best,Costs,1),nl,
+        factor(F), length(Costs,N), CostTotal is F*N-Total, write(CostTotal),
+        nl.
 
 
 %% -------------------
