@@ -13,9 +13,10 @@ landing :- ['landing.pl'],nl,nl,write('Landing System. Input name of file:'),nl,
         statistics(runtime, [T1|_]),
         T is T1-T0,
         format('Time -  ~3d seconds.~n', [T]),
-        factor(F), length(Costs,N), CostTotal is F*N-Total, write(CostTotal), nl,
-        faval(Best,_,Costs),tell('result.txt'),
-        showFlights(Best,Costs,1),told,showFlights(Best,Costs,1),nl.
+        faval(Best,Total,Costs),tell('result.txt'),
+        showFlights(Best,Costs,1),told,showFlights(Best,Costs,1),nl,
+        factor(F), length(Costs,N), CostTotal is F*N-Total, write(CostTotal), nl.
+
 
 
 %% -------------------
