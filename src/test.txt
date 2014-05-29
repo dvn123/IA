@@ -1,4 +1,0 @@
-Flight No 1 -> landing time: 70; runway 2; cost 0; duration 4
-Flight No 2 -> landing time: 54; runway 1; cost 60; duration 4
-Flight No 3 -> landing time: 64; runway 1; cost 40; duration 10
-Flight No 4 -> landing time: 20; runway 1; cost 0; duration 20

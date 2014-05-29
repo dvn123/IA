@@ -1,92 +1,105 @@
 <html >
 <head>
-    <title>Flight Landing</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Flight Landing</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
-    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
-    <script type="text/javascript" src="timeline.js"></script>
-    <link rel="stylesheet" type="text/css" href="timeline.css">
+	<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+	<script type="text/javascript" src="timeline.js"></script>
+	<link rel="stylesheet" type="text/css" href="timeline.css">
 
-    <style type="text/css">
-        body {font: 10pt arial;}
+	<style type="text/css">
+		body {font: 10pt arial;}
 
-        div.timeline-frame {
-            border-color: #103E9C;
-        }
+		div.timeline-frame {
+			border-color: #103E9C;
+		}
 
-        div.timeline-axis {
-            border-color: #103E9C;
+		div.timeline-axis {
+			border-color: #103E9C;
 
-            background-color: #EEEFF1;
-            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#F9F9F9', endColorstr='#EEEFF1'); /* for IE */
-            background: -webkit-gradient(linear, left top, left bottom, from(#F9F9F9), to(#EEEFF1)); /* for webkit browsers */
-            background: -moz-linear-gradient(top,  #F9F9F9,  #EEEFF1); /* for firefox 3.6+ */
-        }
+			background-color: #EEEFF1;
+			filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#F9F9F9', endColorstr='#EEEFF1'); /* for IE */
+			background: -webkit-gradient(linear, left top, left bottom, from(#F9F9F9), to(#EEEFF1)); /* for webkit browsers */
+			background: -moz-linear-gradient(top,  #F9F9F9,  #EEEFF1); /* for firefox 3.6+ */
+		}
 
-        div.timeline-axis-text {
-            font: bold 12px arial ;
-            color: #103E9C;
-        }
+		div.timeline-axis-text {
+			font: bold 12px arial ;
+			color: #103E9C;
+		}
 
-        div.timeline-event {
-            border: none;
-            background-color: white;
-        }
-        div.timeline-event-selected {
-            background-color: #C0D8E1;
-        }
-        div.timeline-event-content {
-            margin: 0;
-        }
+		div.timeline-event {
+			border: none;
+			background-color: white;
+		}
+		div.timeline-event-selected {
+			background-color: #C0D8E1;
+		}
+		div.timeline-event-content {
+			margin: 0;
+		}
 
-        div.timeline-groups-axis {
-            border-color: #103E9C;
-        }
-        div.timeline-groups-text {
-            font: bold 12px arial ;
-            color: #103E9C;
-        }
+		div.timeline-groups-axis {
+			border-color: #103E9C;
+		}
+		div.timeline-groups-text {
+			font: bold 12px arial ;
+			color: #103E9C;
+		}
 
-        div.order {
-            border: 1px solid #FB3738;
-            border-radius: 2px;
-            -moz-border-radius: 2px;
+		div.order {
+			border: 1px solid black;
+			border-radius: 2px;
+			-moz-border-radius: 2px;
 
-            font: bold 12px arial ;
-            color: #103E9C;
+			font: bold 12px arial ;
+			color: #103E9C;
 
-            padding: 2px;
-            margin:1px;
-            overflow: hidden;
-        }
+			padding: 2px;
+			margin:1px;
+			overflow: hidden;
+		}
 
-    </style>
+	</style>
 
 
-    <script type="text/javascript">
-var numbers = [];
-    window.onload = function() {
-		var fileInput = document.getElementById('fileInput');
-		var fileDisplayArea = document.getElementById('fileDisplayArea');
+	<script type="text/javascript">
+		var numbers = [];
+		window.onload = function() {
+			var fileInput = document.getElementById('fileInput');
+			var fileDisplayArea = document.getElementById('fileDisplayArea');
 
-		fileInput.addEventListener('change', function(e) {
-			var file = fileInput.files[0];
-			var textType = /text.*/;
+			fileInput.addEventListener('change', function(e) {
+				var file = fileInput.files[0];
+				var textType = /text.*/;
 
-			if (file.type.match(textType)) {
-				var reader = new FileReader();
+				if (file.type.match(textType)) {
+					var reader = new FileReader();
 
-				reader.onload = function(e) {
-					console.log(reader.result);
-					window.numbers = [];
-					//Flight No 1 -> landing time: 43; runway 2; cost 754.
+					reader.onload = function(e) {
+						$("#info").text("");
+						console.log(reader.result);
+						window.numbers = [];
+					//Flight No 1 -> landing time: 43; runway 2; cost 754; duration x; scaled y
 					var ntemp = reader.result.match(/(\d[\d\.]*)/g);
-					var chunk = 5;
+					var chunk = 6;
 					for (var i=0; i<ntemp.length; i+=chunk) {
-    					window.numbers.push(ntemp.slice(i,i+chunk));
+						window.numbers.push(ntemp.slice(i,i+chunk));
 					}
 					console.log(window.numbers);
 					drawVisualization();
+					for(var fnum = 0; fnum < window.numbers.length; fnum++)
+					{
+						$("div[title='Flight " + window.numbers[fnum][0] +"']").css("background-color",getColorForPercentage(1-Number(window.numbers[fnum][5])));
+					}
+					$("#info").append("<br/><br/><br/>");
+					for(var j = 0; j<reader.result.length; j++)
+					{
+						if(reader.result[j]!="\n")
+							$("#info").append(reader.result[j]);
+						else $("#info").append("<br/><br/>");
+					}
 				}
 
 				reader.readAsText(file);	
@@ -94,10 +107,10 @@ var numbers = [];
 				fileDisplayArea.innerText = "File not supported!";
 			}
 		});
-}
-        var timeline = null;
+		}
+		var timeline = null;
 
-        google.load("visualization", "1");
+		google.load("visualization", "1");
 
         // Set callback to run when API is loaded
        // google.setOnLoadCallback(drawVisualization);
@@ -117,8 +130,8 @@ var numbers = [];
             	var end = new Date(Number(numbers[fnum][1])+Number(numbers[fnum][4]));
             	flight = "<div title='Flight " + numbers[fnum][0] + "' class='order'><img src='img/plane-icon.png' style='width:24px; height:24px; vertical-align: middle'/>#" + numbers[fnum][0] + "<br>Cost " + numbers[fnum][3] + "</div>";
             	var runway = "<img src='img/runway_icon.jpg' style='width:24px; height:24px; vertical-align: middle'>" +
-                            "Runway " + numbers[fnum][2];
-                data.addRow([start, end, flight, runway]);
+            	"Runway " + numbers[fnum][2];
+            	data.addRow([start, end, flight, runway]);
             }
 /*
             var order = 1;
@@ -146,11 +159,11 @@ var numbers = [];
 
             // specify options
             var options = {
-                width:  "100%",
-                height: "auto",
-                layout: "box",
-                editable: false,
-                selectable: false,
+            	width:  "100%",
+            	height: "auto",
+            	layout: "box",
+            	editable: false,
+            	selectable: false,
                 eventMargin: 10,  // minimal margin between events
                 eventMarginAxis: 20, // minimal margin beteen events and the axis
                 showMajorLabels: true,
@@ -165,14 +178,40 @@ var numbers = [];
             // Draw our timeline with the created data and options
             timeline.draw(data);
         }
-    </script>
+
+        var percentColors = [
+        { pct: 0.0, color: { r: 0xff, g: 0x00, b: 0 } },
+        { pct: 0.5, color: { r: 0xff, g: 0x77, b: 0 } },
+        { pct: 1.0, color: { r: 0x00, g: 0xff, b: 0 } } ];
+
+        var getColorForPercentage = function(pct) {
+        	for (var i = 1; i < percentColors.length - 1; i++) {
+        		if (pct < percentColors[i].pct) {
+        			break;
+        		}
+        	}
+        	var lower = percentColors[i - 1];
+        	var upper = percentColors[i];
+        	var range = upper.pct - lower.pct;
+        	var rangePct = (pct - lower.pct) / range;
+        	var pctLower = 1 - rangePct;
+        	var pctUpper = rangePct;
+        	var color = {
+        		r: Math.floor(lower.color.r * pctLower + upper.color.r * pctUpper),
+        		g: Math.floor(lower.color.g * pctLower + upper.color.g * pctUpper),
+        		b: Math.floor(lower.color.b * pctLower + upper.color.b * pctUpper)
+        	};
+        	return 'rgb(' + [color.r, color.g, color.b].join(',') + ')';
+    // or output as hex if preferred
+} 
+</script>
 </head>
 
 <body>
-<h1>Flight Landing</h1>
- <input type="file" id="fileInput">
+	<h1>Flight Landing</h1>
+	<input type="file" id="fileInput">
 
-<div id="mytimeline"></div>
-
+	<div id="mytimeline"></div>
+	<div id="info"/>
 </body>
 </html>

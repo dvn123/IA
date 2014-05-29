@@ -64,4 +64,7 @@ landing :- ['landing.pl'],nl,nl,write('Landing System. Input name of file:'),nl,
         T is T1-T0,
         format('Time -  ~3d seconds.~n', [T]),
         faval(Lout,_,Costs),
+        write('Output file name:'),nl,read(OutputF),
+        tell(OutputF),
+        showFlights(Lout,Costs,1),told,
         showFlights(Lout,Costs,1),nl.

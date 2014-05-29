@@ -134,4 +134,7 @@ landing :- ['landing.pl'],nl,nl,write('Landing System. Input name of file:'),nl,
         faval(Lout, X),
         write('BestScore - '), write(X), nl,
         faval(Lout,_,Costs),
+        write('Output file name:'),nl,read(OutputF),
+        tell(OutputF),
+        showFlights(Lout,Costs,1),told,
         showFlights(Lout,Costs,1),nl.

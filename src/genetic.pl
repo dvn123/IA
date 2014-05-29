@@ -1,21 +1,23 @@
 factor(10000). % valor maximo para obter funcao adaptacao
-size(40).
-iterations(5000).
-crossover(0.5).
+size(1000).
+iterations(50).
+crossover(0.50).
 
 landing :- ['landing.pl'],nl,nl,write('Landing System. Input name of file:'),nl,read(FileName),[FileName],
-        %write('Size of population'), nl, read(Size), nl,
-        %write('Number of generations'),nl, read(NumGen), nl,
-        %write('Crossover probability'),nl, read(CO), nl,
-        crossover(CO), iterations(NumGen), size(Size),
+     %   write('Size of population'), nl, read(Size), nl,
+      %  write('Number of generations'),nl, read(NumGen), nl,
+      %  write('Crossover probability'),nl, read(CO), nl,
+       crossover(CO), iterations(NumGen), size(Size),
         statistics(total_runtime, [T0| _]), 
         genetic(Size,CO,NumGen,_,Best),
         statistics(total_runtime, [T1|_]),
         T is T1-T0,
         format('Time -  ~3d seconds.~n', [T]),
-        faval(Best,Total,Costs),tell('result.txt'),
+        faval(Best,Total,Costs),
+        write('Output file name:'),nl,read(OutputF),
+        tell(OutputF),
         showFlights(Best,Costs,1),told,showFlights(Best,Costs,1),
-        factor(F), length(Costs,N), CostTotal is F*N-Total, write(CostTotal).
+        factor(F), length(Costs,N), CostTotal is F*N-Total, write('Total cost '), write(CostTotal).
 
 
 
@@ -29,13 +31,14 @@ genetic(Nelems,ProbCross,Ngens,CostBest,Best) :- build_pop(Nelems,Lout,C1), gene
         geneticIteration(Lout,C1,ProbCross,I,Ngens,Clast,Last) :-
                 scale(C1,Cscale), replace(Cscale,Lout,Lnew),crossOver(ProbCross,Lnew,Out),
                 findall(C,(member(L,Out),faval(L,C,_)),Costs),
-                write(Out),nl,
-                factor(F), member(A,Out), length(A,N), Ftotal is F*N,
+                factor(F), member(A,Out), length(A,N),
+                %size(X), Ftotal is F*N*X,
+                %sumlist(Costs,Sum),F2 is Ftotal-Sum, write(F2),nl,
+                Ftotal is F*N,
                 (nth1(_,Costs,Ftotal) -> I1 is Ngens; I1 is I + 1),
                 geneticIteration(Out,Costs,ProbCross,I1,Ngens,Clast,Last).
 
 build_pop(N,Lout,Cout) :- findall(L,(repeat(N),build_flights_random(L)),Lout),findall(C,(member(L,Lout),faval(L,C,_)),Cout).
-scale(Cin,Cout) :- sumlist(Cin,V), findall(C,(member(Celem,Cin), C is Celem/ V),Cout).
 rand_elems(N,Rand) :- findall(R,(repeat(N),random(R)),Rand).
 accumulate_percent([],[],_).
 accumulate_percent([Hin|Tin],[Hout|Tout],A) :- Hout is A + Hin, accumulate_percent(Tin,Tout,Hout).

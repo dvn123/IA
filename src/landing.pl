@@ -71,20 +71,32 @@ validate(flight(Id,Tmin,Tpref,Tmax,Cbefore,Cafter,D)) :-
         (Cafter<0 -> write('Flight '), write(Id), write(' not valid'), break;true),
         (Cbefore<0 -> write('Flight '), write(Id), write(' not valid'), break;true).
 
-showFlight(Id,Cost,[Hs-Hm]) :- 
+showFlight(Id,Cost,[Hs-Hm],Hsc) :- 
+        p1(P1),
+        p2(P2),
+        min_member(P,[P1,P2]),
+        ( Cost > P -> write('ERROR ');true),
         write('Flight No '), write(Id),
         write(' -> landing time: '),
         write(Hs),
         write('; runway '),
         write(Hm),
         write('; cost '),
-        factor(F),
-        (F =:= 0 -> C1 is Cost;C1 is F - Cost),
-        write(C1),
+       % factor(F),
+      %  (F =:= 0 -> C1 is Cost;C1 is F - Cost),
+        write(Cost),
         write('; duration '),
-        flight(Id,_,_,_,_,_,D), write(D) 
+        flight(Id,_,_,_,_,_,D), write(D),
+        write('; scaled cost '), write(Hsc)
         ,nl.
 
-showFlights([],[],_).
-showFlights([H|T],[Hc|Tc],N) :- showFlight(N,Hc,H), N1 is N+1, showFlights(T,Tc,N1).
+showFlights([],[],_,_).
+showFlights([H|T],[Hc|Tc],N,[Hsc|Tsc]) :- showFlight(N,Hc,H,Hsc), N1 is N+1, showFlights(T,Tc,N1,Tsc).
+
+showFlights(L,Lc,1) :-
+        factor(F),
+        (F =:= 0 -> Lc2 = Lc;findall(C1,(member(A,Lc),C1 is F - A),Lc2)),
+        scale(Lc2,Cout), showFlights(L,Lc2,1,Cout).
+
+scale(Cin,Cout) :- sumlist(Cin,V), (V =:= 0 -> Cout = Cin;findall(C,(member(Celem,Cin), C is Celem/ V),Cout)).
 
