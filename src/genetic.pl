@@ -22,7 +22,9 @@ genetic(Nelems,ProbCross,Ngens,CostBest,Best) :- build_pop(Nelems,Lout,C1), gene
         geneticIteration(Lout,C1,ProbCross,I,Ngens,Clast,Last) :-
                 scale(C1,Cscale), replace(Cscale,Lout,Lnew),crossOver(ProbCross,Lnew,Out),
                 findall(C,(member(L,Out),faval(L,C,_)),Costs),
-                I1 is I + 1,
+                write(Out),nl,
+                factor(F), member(A,Out), length(A,N), Ftotal is F*N,
+                (nth1(_,Costs,Ftotal) -> I1 is Ngens; I1 is I + 1),
                 geneticIteration(Out,Costs,ProbCross,I1,Ngens,Clast,Last).
 
 build_pop(N,Lout,Cout) :- findall(L,(repeat(N),build_flights_random(L)),Lout),findall(C,(member(L,Lout),faval(L,C,_)),Cout).
