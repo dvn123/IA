@@ -1,15 +1,22 @@
 factor(10000). % valor maximo para obter funcao adaptacao
-
+size(40).
+iterations(5000).
+crossover(0.5).
 
 landing :- ['landing.pl'],nl,nl,write('Landing System. Input name of file:'),nl,read(FileName),[FileName],
-        write('Size of population'), nl, read(Size), nl,
-        write('Number of generations'),nl, read(NumGen), nl,
-        write('Crossover probability'),nl, read(CO), nl,
+        %write('Size of population'), nl, read(Size), nl,
+        %write('Number of generations'),nl, read(NumGen), nl,
+        %write('Crossover probability'),nl, read(CO), nl,
+        crossover(CO), iterations(NumGen), size(Size),
+        statistics(total_runtime, [T0| _]), 
         genetic(Size,CO,NumGen,_,Best),
+        statistics(total_runtime, [T1|_]),
+        T is T1-T0,
+        format('Time -  ~3d seconds.~n', [T]),
         faval(Best,Total,Costs),tell('result.txt'),
-        showFlights(Best,Costs,1),told,showFlights(Best,Costs,1),nl,
-        factor(F), length(Costs,N), CostTotal is F*N-Total, write(CostTotal),
-        nl.
+        showFlights(Best,Costs,1),told,showFlights(Best,Costs,1),
+        factor(F), length(Costs,N), CostTotal is F*N-Total, write(CostTotal).
+
 
 
 %% -------------------

@@ -72,18 +72,19 @@ validate(flight(Id,Tmin,Tpref,Tmax,Cbefore,Cafter,D)) :-
         (Cbefore<0 -> write('Flight '), write(Id), write(' not valid'), break;true).
 
 showFlight(Id,Cost,[Hs-Hm]) :- 
-                                                                                              write('Flight No '), write(Id),
-                                                                                              write(' -> landing time: '),
-                                                                                              write(Hs),
-                                                                                              write('; runway '),
-                                                                                              write(Hm),
-                                                                                              write('; cost '),
-                                                                                              factor(F),
-                                                                                              (F =:= 0 -> C1 is Cost;C1 is F - Cost),
-                                                                                              write(C1),
-                                                                                              write('; duration '),
-                                                                                              flight(Id,_,_,_,_,_,D), write(D) 
-                                                                                              ,nl.
+        write('Flight No '), write(Id),
+        write(' -> landing time: '),
+        write(Hs),
+        write('; runway '),
+        write(Hm),
+        write('; cost '),
+        factor(F),
+        (F =:= 0 -> C1 is Cost;C1 is F - Cost),
+        write(C1),
+        write('; duration '),
+        flight(Id,_,_,_,_,_,D), write(D) 
+        ,nl.
 
 showFlights([],[],_).
 showFlights([H|T],[Hc|Tc],N) :- showFlight(N,Hc,H), N1 is N+1, showFlights(T,Tc,N1).
+
