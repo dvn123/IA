@@ -4,9 +4,6 @@ iterations(50).
 crossover(0.50).
 
 landing :- ['landing.pl'],nl,nl,write('Landing System. Input name of file:'),nl,read(FileName),[FileName],
-     %   write('Size of population'), nl, read(Size), nl,
-      %  write('Number of generations'),nl, read(NumGen), nl,
-      %  write('Crossover probability'),nl, read(CO), nl,
        crossover(CO), iterations(NumGen), size(Size),
         statistics(total_runtime, [T0| _]), 
         genetic(Size,CO,NumGen,_,Best),

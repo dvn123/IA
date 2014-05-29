@@ -1,0 +1,4 @@
+Flight No 1 -> landing time: 48; runway 1; cost 44; duration 4; scaled cost 0.17959183673469387
+Flight No 2 -> landing time: 67; runway 2; cost 21; duration 4; scaled cost 0.08571428571428572
+Flight No 3 -> landing time: 63; runway 1; cost 30; duration 10; scaled cost 0.12244897959183673
+Flight No 4 -> landing time: 17; runway 2; cost 150; duration 20; scaled cost 0.6122448979591837

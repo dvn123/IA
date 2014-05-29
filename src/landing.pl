@@ -82,8 +82,6 @@ showFlight(Id,Cost,[Hs-Hm],Hsc) :-
         write('; runway '),
         write(Hm),
         write('; cost '),
-       % factor(F),
-      %  (F =:= 0 -> C1 is Cost;C1 is F - Cost),
         write(Cost),
         write('; duration '),
         flight(Id,_,_,_,_,_,D), write(D),
